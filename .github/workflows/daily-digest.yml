@@ -82,16 +82,23 @@ jobs:
           mkdir -p ~/.follow-builders
 
           METHOD="${DELIVERY_METHOD:-telegram}"
-          echo "Delivery method: $METHOD"
+          echo "=== Delivery method: '$METHOD' ==="
+          echo "=== DELIVERY_EMAIL set: $([ -n "$DELIVERY_EMAIL" ] && echo YES || echo NO) ==="
+          echo "=== RESEND_API_KEY set: $([ -n "$RESEND_API_KEY" ] && echo YES || echo NO) ==="
 
           # Write config.json
           printf '{"language":"bilingual","delivery":{"method":"%s","chatId":"%s","email":"%s"}}' \
             "$METHOD" "$TELEGRAM_CHAT_ID" "$DELIVERY_EMAIL" \
             > ~/.follow-builders/config.json
 
+          echo "=== config.json ==="
+          cat ~/.follow-builders/config.json
+
           # Write API keys for deliver.js
           printf 'TELEGRAM_BOT_TOKEN=%s\nRESEND_API_KEY=%s\n' \
             "$TELEGRAM_BOT_TOKEN" "$RESEND_API_KEY" \
             > ~/.follow-builders/.env
 
+          echo "=== Running deliver.js ==="
           node scripts/deliver.js --file /tmp/digest.txt
+          echo "=== deliver.js exit code: $? ==="
