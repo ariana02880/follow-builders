@@ -1,0 +1,103 @@
+name: Daily AI Builders Digest
+
+on:
+  schedule:
+    # 00:00 UTC = 08:00 Beijing (CST) every day
+    # Change to suit your timezone — https://crontab.guru
+    - cron: '0 0 * * *'
+  workflow_dispatch:   # Allow manual one-click run from GitHub UI
+
+permissions:
+  contents: write      # Needed to commit updated feed JSON files
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Node setup ───────────────────────────────────────────────────────
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: scripts
+
+      # ── 3. Fetch fresh feeds (X, blogs, podcasts) ───────────────────────────
+      - name: Fetch fresh feeds
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          POD2TXT_API_KEY: ${{ secrets.POD2TXT_API_KEY }}
+        run: node scripts/generate-feed.js
+
+      # ── 4. Commit updated feed JSON back to the repo ─────────────────────────
+      - name: Commit feed updates
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feed-x.json feed-podcasts.json feed-blogs.json state-feed.json
+          git diff --staged --quiet \
+            && echo "⏭ No feed changes to commit" \
+            || (git commit -m "chore: update feeds [skip ci]" && git push)
+
+      # ── 5. Generate bilingual digest with Claude ─────────────────────────────
+      - name: Generate bilingual digest
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-digest.js > /tmp/digest.txt
+
+      - name: Preview digest (first 30 lines)
+        run: head -30 /tmp/digest.txt
+
+      # ── 6. Deliver ─────────────────────────────────────────────────────────
+      # Set DELIVERY_METHOD as a GitHub Actions *variable* (not secret):
+      #   Repo → Settings → Secrets and variables → Actions → Variables → New
+      #   Name: DELIVERY_METHOD   Value: telegram  (or: email)
+      #
+      # Telegram secrets required: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+      # Email secrets required:    RESEND_API_KEY, DELIVERY_EMAIL
+      - name: Deliver digest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          RESEND_API_KEY:     ${{ secrets.RESEND_API_KEY }}
+          DELIVERY_EMAIL:     ${{ secrets.DELIVERY_EMAIL }}
+          DELIVERY_METHOD:    ${{ vars.DELIVERY_METHOD }}
+        run: |
+          mkdir -p ~/.follow-builders
+
+          # Write config.json from env vars (no file needed on developer machine)
+          python3 - <<'PYEOF'
+          import json, os
+          method = os.environ.get('DELIVERY_METHOD', 'telegram').strip()
+          cfg = {
+              "language": "bilingual",
+              "delivery": {
+                  "method": method,
+                  "chatId": os.environ.get('TELEGRAM_CHAT_ID', ''),
+                  "email":  os.environ.get('DELIVERY_EMAIL', '')
+              }
+          }
+          import pathlib
+          pathlib.Path(os.path.expanduser('~/.follow-builders')).mkdir(parents=True, exist_ok=True)
+          with open(os.path.expanduser('~/.follow-builders/config.json'), 'w') as f:
+              json.dump(cfg, f)
+          print(f"Delivery method: {method}")
+          PYEOF
+
+          # Write API keys for deliver.js
+          {
+            echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
+            echo "RESEND_API_KEY=${RESEND_API_KEY}"
+          } > ~/.follow-builders/.env
+
+          node scripts/deliver.js --file /tmp/digest.txt

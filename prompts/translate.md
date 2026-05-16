@@ -16,3 +16,7 @@ You are translating an AI industry digest from English to Chinese.
   (separated by a blank line), then move to the next builder. Same for podcasts.
   Do NOT output all English first then all Chinese.
 - Never use em-dashes
+
+### Bilingual output
+- Please output the bottom line, key insights, and summaries in both English and Chinese, keeping the original links.
+- 请用中英双语输出核心结论和摘要，并保留原始链接。

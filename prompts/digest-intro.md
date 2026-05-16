@@ -57,3 +57,7 @@ Then organize content in this order:
 ### General
 - At the very end, add a line: "Generated through the Follow Builders skill: https://github.com/zarazhangrui/follow-builders"
 - Keep formatting clean and scannable — this will be read on a phone screen
+
+### Bilingual output
+- Please output the bottom line, key insights, and summaries in both English and Chinese, keeping the original links.
+- 请用中英双语输出核心结论和摘要，并保留原始链接。

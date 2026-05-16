@@ -19,3 +19,7 @@ to know what this person is thinking and building.
 - If they shared a tool, demo, or resource, mention it by name with the link
 - If there's nothing substantive to report, say "No notable posts" rather than
   padding with fluff
+
+### Bilingual output
+- Please output the bottom line, key insights, and summaries in both English and Chinese, keeping the original links.
+- 请用中英双语输出核心结论和摘要，并保留原始链接。

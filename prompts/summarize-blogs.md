@@ -16,3 +16,7 @@ professional who wants the key announcements and insights without reading the fu
 - Do NOT include filler like "In this blog post..." or "The author discusses..."
 - Jump straight into the substance
 - Include the direct link to the original article
+
+### Bilingual output
+- Please output the bottom line, key insights, and summaries in both English and Chinese, keeping the original links.
+- 请用中英双语输出核心结论和摘要，并保留原始链接。

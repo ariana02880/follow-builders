@@ -15,3 +15,7 @@ the key insights without watching the full episode.
 - Keep the tone sharp and conversational — like a smart friend briefing you
 - Do NOT include filler like "In this episode..." or "The host and guest discussed..."
 - Jump straight into the substance
+
+### Bilingual output
+- Please output the bottom line, key insights, and summaries in both English and Chinese, keeping the original links.
+- 请用中英双语输出核心结论和摘要，并保留原始链接。
