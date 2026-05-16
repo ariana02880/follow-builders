@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p ~/.follow-builders
 
-          METHOD="${DELIVERY_METHOD:-telegram}"
+          METHOD="${DELIVERY_METHOD:-email}"
           echo "=== Delivery method: '$METHOD' ==="
           echo "=== DELIVERY_EMAIL set: $([ -n "$DELIVERY_EMAIL" ] && echo YES || echo NO) ==="
           echo "=== RESEND_API_KEY set: $([ -n "$RESEND_API_KEY" ] && echo YES || echo NO) ==="
