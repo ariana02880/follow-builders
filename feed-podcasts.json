@@ -1,11 +1,8 @@
 {
-  "generatedAt": "2026-05-16T08:20:34.236Z",
+  "generatedAt": "2026-05-16T08:31:43.954Z",
   "lookbackHours": 336,
   "podcasts": [],
   "stats": {
     "podcastEpisodes": 0
-  },
-  "errors": [
-    "Podcast: Transcript error for \"The Secrets of Claude's Platform From the Team Who Built It\": HTTP 401: {\"status\":\"error\",\"message\":\"Invalid API key\"}"
-  ]
+  }
 }
