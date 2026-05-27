@@ -124,9 +124,57 @@ async function sendTelegram(text, botToken, chatId) {
 
 // -- Email Delivery (Resend) -------------------------------------------------
 
+// Converts a plain-text markdown digest to readable HTML for email.
+function markdownToHtml(text) {
+  const lines = text.split('\n');
+  const htmlLines = [];
+  let inParagraph = false;
+
+  const closeParagraph = () => {
+    if (inParagraph) { htmlLines.push('</p>'); inParagraph = false; }
+  };
+
+  const renderInline = (line) =>
+    line
+      // **bold** → <strong>
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // bare URLs → clickable links
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#2563eb;">$1</a>');
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+
+    if (/^## /.test(line)) {
+      closeParagraph();
+      htmlLines.push(`<h2 style="font-size:1.1em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin:2em 0 .5em;">${renderInline(line.slice(3))}</h2>`);
+    } else if (/^### /.test(line)) {
+      closeParagraph();
+      htmlLines.push(`<h3 style="font-size:1em;font-weight:700;color:#111827;margin:1.2em 0 .3em;">${renderInline(line.slice(4))}</h3>`);
+    } else if (/^---+$/.test(line)) {
+      closeParagraph();
+      htmlLines.push('<hr style="border:none;border-top:1px solid #e5e7eb;margin:1em 0;">');
+    } else if (line === '') {
+      closeParagraph();
+    } else {
+      if (!inParagraph) { htmlLines.push('<p style="margin:.4em 0;line-height:1.6;color:#374151;">'); inParagraph = true; }
+      else htmlLines.push('<br>');
+      htmlLines.push(renderInline(line));
+    }
+  }
+  closeParagraph();
+
+  return `<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:24px;background:#fff;">
+${htmlLines.join('\n')}
+</body></html>`;
+}
+
 // Sends the digest via Resend's email API.
 // The user provides their own Resend API key and email address.
 async function sendEmail(text, apiKey, toEmail) {
+  const dateStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -134,11 +182,10 @@ async function sendEmail(text, apiKey, toEmail) {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      from: 'AI Builders Digest <onboarding@resend.dev>',
+      from: 'FlyingNana Daily News <onboarding@resend.dev>',
       to: [toEmail],
-      subject: `AI Builders Digest — ${new Date().toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      })}`,
+      subject: `FlyingNana Daily News — ${dateStr}`,
+      html: markdownToHtml(text),
       text: text
     })
   });
