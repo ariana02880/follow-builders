@@ -109,6 +109,45 @@ cd ~/.claude/skills/follow-builders/scripts && npm install
 
 查看 [examples/sample-digest.md](examples/sample-digest.md) 了解输出示例。
 
+## 管理 GitHub Actions
+
+仓库包含两个每日定时运行的 workflow：
+- `generate-feed.yml` — 抓取最新内容（UTC 时间 6:17 AM，即北京时间 14:17 运行）
+- `daily-digest.yml` — 生成并推送摘要（UTC 时间 7:00 AM，即北京时间 15:00 运行）
+
+### 暂停自动运行
+
+在两个 workflow 文件中，将 `schedule:` 那几行注释掉即可停止每日定时任务：
+
+**`.github/workflows/generate-feed.yml`**
+```yaml
+on:
+  # schedule:
+  #   - cron: '17 6 * * *'
+  workflow_dispatch:
+```
+
+**`.github/workflows/daily-digest.yml`**
+```yaml
+on:
+  # schedule:
+  #   - cron: '0 7 * * *'
+  workflow_dispatch:
+```
+
+### 手动运行
+
+暂停定时任务后（或任何时候），你可以手动触发运行：
+
+1. 打开 GitHub 仓库页面
+2. 点击顶部 **Actions** 标签
+3. 在左侧选择 **Generate Feeds** 或 **Daily AI Builders Digest**
+4. 点击右侧 **Run workflow** → **Run workflow**
+
+### 恢复自动运行
+
+将两个文件中注释掉的 `schedule:` 那几行取消注释，即可恢复每日自动运行。
+
 ## 隐私
 
 - 不发送任何 API key——所有内容由中心化服务获取

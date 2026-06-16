@@ -3,8 +3,8 @@ name: Daily AI Builders Digest
 on:
   # Runs 45 minutes after generate-feed.yml (which runs at 06:17 UTC)
   # 07:00 UTC = 15:00 Beijing (CST)
-  schedule:
-    - cron: '0 7 * * *'
+  # schedule:
+  #   - cron: '0 7 * * *'
   workflow_dispatch:
 
 permissions:

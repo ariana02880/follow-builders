@@ -118,6 +118,45 @@ is fetched centrally and updated daily.
 
 See [examples/sample-digest.md](examples/sample-digest.md) for what the output looks like.
 
+## Managing GitHub Actions
+
+The repository includes two scheduled workflows that run daily:
+- `generate-feed.yml` — fetches the latest content (runs at 6:17 AM UTC)
+- `daily-digest.yml` — generates and delivers the digest (runs at 7:00 AM UTC)
+
+### Pausing automatic runs
+
+To stop the daily schedule, comment out the `schedule:` block in both workflow files:
+
+**`.github/workflows/generate-feed.yml`**
+```yaml
+on:
+  # schedule:
+  #   - cron: '17 6 * * *'
+  workflow_dispatch:
+```
+
+**`.github/workflows/daily-digest.yml`**
+```yaml
+on:
+  # schedule:
+  #   - cron: '0 7 * * *'
+  workflow_dispatch:
+```
+
+### Running manually
+
+Once the schedule is paused (or any time), you can trigger a run manually:
+
+1. Go to the repository on GitHub
+2. Click the **Actions** tab
+3. Select **Generate Feeds** or **Daily AI Builders Digest** from the left sidebar
+4. Click **Run workflow** → **Run workflow**
+
+### Resuming automatic runs
+
+Uncomment the `schedule:` lines in both files to restore the daily schedule.
+
 ## Privacy
 
 - No API keys are sent anywhere — all content is fetched centrally
